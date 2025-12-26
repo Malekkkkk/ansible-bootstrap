@@ -1,0 +1,14 @@
+common_packages:
+  - curl
+  - git 
+  - vim
+  - htop
+
+nginx_packages:
+  - nginx
+
+web_service: nginx
+
+nginx_port: 80
+nginx_server_name: "_"
+nginx_web_root: /usr/share/nginx/html

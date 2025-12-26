@@ -1,8 +1,10 @@
-packages:
+common_packages:
   - curl
   - git 
   - vim
   - htop
+
+nginx_packages:
   - nginx
 
 web_service: nginx

@@ -1,0 +1,8 @@
+---
+- name: Baseline server configuration
+  hosts: servers
+  become: true
+  
+  roles: 
+    - common
+    - nginx

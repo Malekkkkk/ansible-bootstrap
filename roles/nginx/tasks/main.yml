@@ -1,0 +1,49 @@
+---
+- name: Install nginx 
+  ansible.builtin.apt:
+    pkg: "{{ nginx_packages }}"
+    state: present
+  tags:
+    - packages
+
+- name: Configuration marker file
+  ansible.builtin.copy:
+    dest: /etc/ansible-demo.txt
+    content: "Managed by Ansible\n"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart web service
+  tags:
+    - config
+
+- name: Deploy nginx default site config
+  ansible.builtin.template:
+    src: ../templates/nginx-default.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart web service
+  tags: 
+    - config
+
+- name: Start nginx server 
+  systemd:
+    name: "{{ web_service }}"
+    state: started
+    enabled: yes
+
+- name: Wait for the nginx_port
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ nginx_port }}"
+    timeout: 30
+
+- name: Make HTTP request 
+  ansible.builtin.uri:
+    url: http://192.168.64.22:{{ nginx_port }}/
+    method: GET
+    status_code: 200
+  tags:
+    - verify
