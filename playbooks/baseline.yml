@@ -10,14 +10,32 @@
         cache_valid_time: 3600
     - name: Install a list of packages
       ansible.builtin.apt:
-        pkg:
-          - curl
-          - git 
-          - vim
-          - htop
-          - nginx
+        pkg: "{{ packages }}"
+        state: present
+    - name: Configuration marker file
+      ansible.builtin.copy:
+        dest: /etc/ansible-demo.txt
+        content: "Managed by Ansible\n"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart web service
+    - name: Deploy nginx default site config
+      ansible.builtin.template:
+        src: ../templates/nginx-default.conf.j2
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart web service
     - name: Start nginx server 
       systemd:
-        name: nginx
+        name: "{{ web_service }}"
         state: started
         enabled: yes
+  
+  handlers: 
+    - name: Restart web service
+      ansible.builtin.service:
+        name: "{{ web_service }}"
+        state: restarted
